@@ -26,13 +26,12 @@ class InfluxDB():
 		self.processtime = 0
 		self.host = host
 
-		self.address = demCfg['db']['influx']['address']
-		self.port = demCfg['db']['influx']['port']
-		self.database = demCfg['db']['influx']['dbname']
-		self.prefix = ""
+		self.address = demCfg['db']['influx'].get("address", "")
+		self.port = demCfg['db']['influx'].get("port", "8086")
+		self.database = demCfg['db']['influx'].get("dbname", "dem")
 
-		self.username = ""
-		self.password = ""
+		self.username = demCfg['db']['influx'].get("username", "")
+		self.password = demCfg['db']['influx'].get("password", "")
 
 		self.data = []
 		self.maxBuffer = 100000
@@ -143,7 +142,7 @@ class InfluxDB():
 		return result
 
 	def clearDatabase(self):
-		self.host.logMsg("[InfluxDB] Clearing database "+self.database)
+		self.host.logMsg("[InfluxDB] Clearing database "+self.database+" (%s:%s - %s,%s)" % (self.address, self.port, self.username, self.password[:3]+"..."))
 		payload = {'q':"DROP DATABASE "+self.database}
 		try:
 			r = requests.post(self.address+ ':'+self.port+ '/query',  auth=(self.username, self.password), data=payload)
